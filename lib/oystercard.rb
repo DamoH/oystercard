@@ -20,13 +20,20 @@ class Oystercard
 
   def touch_in(station)
     raise "not enough funds" if @balance < MINIMUM_FARE
+    check_touched_out
     @journeys << Journey.new(station)
   end
 
   def touch_out(exit_station)
     @journeys[-1].to = exit_station
-    deduct_money(MINIMUM_FARE)
     @journeys[-1].finish
+    deduct_money(@journeys[-1].fare)
+  end
+
+  def check_touched_out
+    if @journeys.length > 0
+      deduct_money(@journeys[-1].fare) if !@journeys[-1].complete?
+    end
   end
 
   private
